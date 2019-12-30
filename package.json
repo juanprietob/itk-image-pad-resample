@@ -21,6 +21,7 @@
   "license": "MIT",
   "dependencies": {
     "itk": "^10.2.1",
+    "minimist": "^1.2.0",
     "underscore": "^1.9.1"
   },
   "devDependencies": {
