@@ -9,13 +9,13 @@
 Install with the flag '-g' and use it in the command line. 
 
 ```bash
-	npm install itk-image-pad-resample -g
+npm install itk-image-pad-resample -g
 ```
 
 ## Usage in the command line
 
 ```bash
-	img-pad-resample --help
+img-pad-resample --help
 ```
 
 ```
@@ -42,25 +42,25 @@ img-pad-resample --img /path/to/input.nii --output_size 250,250,250 --out temp.n
 Use [itk.js](https://insightsoftwareconsortium.github.io/itk-js/) to read an image. 
 
 ```js
-	const readImageLocalFileSync = require('itk/readImageLocalFileSync');
-	const writeImageLocalFileSync = require('itk/writeImageLocalFileSync');
-	const ImgPadResampleLib = require('../dist');
+const readImageLocalFileSync = require('itk/readImageLocalFileSync');
+const writeImageLocalFileSync = require('itk/writeImageLocalFileSync');
+const ImgPadResampleLib = require('../dist');
 ```
 
 ```js
-	const in_img = readImageLocalFileSync('/path/to/input');
+const in_img = readImageLocalFileSync('/path/to/input');
 
-	const imgpad = new ImgPadResampleLib();
-	imgpad.SetImage(in_img);
-	imgpad.SetOutputSize([300, 250]);
-	imgpad.SetFitSpacingToOutputSizeOn(); //optional
-	imgpad.SetIsoSpacingOn(); //optional 
-	imgpad.SetCenterImageOn(); //optional
-	imgpad.SetInterpolationTypeToLinear(); //default is nearest
-	imgpad.Update();
-	var img_out = imgpad.GetOutput();
+const imgpad = new ImgPadResampleLib();
+imgpad.SetImage(in_img);
+imgpad.SetOutputSize([300, 250]);
+imgpad.SetFitSpacingToOutputSizeOn(); //optional
+imgpad.SetIsoSpacingOn(); //optional 
+imgpad.SetCenterImageOn(); //optional
+imgpad.SetInterpolationTypeToLinear(); //default is nearest
+imgpad.Update();
+var img_out = imgpad.GetOutput();
 
-	writeImageLocalFileSync(true, img_out, outputFileName)
+writeImageLocalFileSync(true, img_out, outputFileName);
 ```
 
 ## License
