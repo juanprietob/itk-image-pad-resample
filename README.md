@@ -44,11 +44,11 @@ Use [itk.js](https://insightsoftwareconsortium.github.io/itk-js/) to read an ima
 ```js
 const readImageLocalFileSync = require('itk/readImageLocalFileSync');
 const writeImageLocalFileSync = require('itk/writeImageLocalFileSync');
-const ImgPadResampleLib = require('../dist');
+const ImgPadResampleLib = require('itk-image-pad-resample');
 ```
 
 ```js
-const in_img = readImageLocalFileSync('/path/to/input');
+const in_img = readImageLocalFileSync('/path/to/input{.png,.jpg,.nrrd,.nii.gz,.dcm}');
 
 const imgpad = new ImgPadResampleLib();
 imgpad.SetImage(in_img);
