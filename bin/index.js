@@ -37,11 +37,14 @@ var in_img = readImageLocalFileSync(inputFileName);
 var imgpad = new ImgPadResampleLib();
 imgpad.SetImage(in_img);
 imgpad.SetOutputSize(output_size);
-imgpad.SetOutputSpacing(output_spacing);
-imgpad.SetOutputPad(output_pad);
 
 if(output_spacing.length == 0){
 	imgpad.SetFitSpacingToOutputSizeOn();
+}else{
+    imgpad.SetOutputSpacing(output_spacing);
+}
+if(output_pad.length > 0){
+    imgpad.SetOutputPad(output_pad);
 }
 if(argv["iso_spacing"]){
 	imgpad.SetIsoSpacingOn();
