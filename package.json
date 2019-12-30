@@ -1,6 +1,6 @@
 {
   "name": "itk-image-pad-resample",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Resample or pad an ITK image to make it match a given size in the i,j,k dimensions",
   "main": "index.js",
   "scripts": {
