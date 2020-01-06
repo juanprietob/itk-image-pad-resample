@@ -1,6 +1,6 @@
 const readImageLocalFileSync = require('itk/readImageLocalFileSync');
 const writeImageLocalFileSync = require('itk/writeImageLocalFileSync');
-const ImgPadResampleLib = require('../dist');
+const ImgPadResampleLib = require('../dist/index');
 const Lab = require('@hapi/lab');
 const lab = exports.lab = Lab.script();
 const path = require('path');

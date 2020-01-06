@@ -1,6 +1,5 @@
-const path = require('path');
-const {ImgPadResample} = require(path.join(__dirname, 'ImgPadResample.js'));
-const _ = require('underscore');
+import {ImgPadResample} from 'img_pad_resample';
+import _ from 'underscore';
 
 class ImgPadResampleLib {
 	constructor(){
@@ -152,4 +151,4 @@ class ImgPadResampleLib {
 	}	
 }
 
-module.exports = ImgPadResampleLib;
+export default ImgPadResampleLib;

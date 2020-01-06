@@ -5,7 +5,8 @@
   "repository": "juanprietob/itk-image-pad-resample",
   "main": "dist/index.js",
   "scripts": {
-    "test": "lab -v test/test.js"
+    "test": "lab -v test/test.js",
+    "build": "webpack"
   },
   "bin": {
     "img-pad-resample": "./bin/index.js"
@@ -25,6 +26,8 @@
     "underscore": "^1.9.1"
   },
   "devDependencies": {
-    "@hapi/lab": "^21.0.0"
+    "@hapi/lab": "^21.0.0",
+    "webpack": "^4.41.5",
+    "webpack-cli": "^3.3.10"
   }
 }
