@@ -16,7 +16,9 @@
     "pad",
     "itk",
     "image",
-    "prediction"
+    "prediction",
+    "tensorflow",
+    "tfjs"
   ],
   "author": "juanprietob@gmail.com",
   "license": "MIT",
