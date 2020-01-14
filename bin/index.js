@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
-const readImageLocalFileSync = require('itk/readImageLocalFileSync');
-const writeImageLocalFileSync = require('itk/writeImageLocalFileSync');
+const MedImgReader = require('med-img-reader');
 const ImgPadResampleLib = require('../dist');
 const argv = require('minimist')(process.argv.slice(2));
 const _ = require('underscore');
@@ -32,7 +31,10 @@ var output_size = argv["size"]? _.map(argv["size"].split(","), (n)=>{return Numb
 var output_spacing = argv["spacing"]? _.map(argv["spacing"].split(","), (n)=>{return Number(n);}) : [];
 var output_pad = argv["pad"]? _.map(argv["pad"].split(","), (n)=>{return Number(n);}) : [];
 
-var in_img = readImageLocalFileSync(inputFileName);
+const medimgreader = new MedImgReader();
+medimgreader.SetFilename(inputFileName);
+medimgreader.ReadImage();
+var in_img = medimgreader.GetOutput();
 
 var imgpad = new ImgPadResampleLib();
 imgpad.SetImage(in_img);
@@ -60,4 +62,8 @@ imgpad.Update();
 var img_out = imgpad.GetOutput();
 
 console.log("Writing:", outputFileName);
-writeImageLocalFileSync(true, img_out, outputFileName)
+
+const writer = new MedImgReader();
+writer.SetFilename(outputFileName);
+writer.SetInput(img_out)
+writer.WriteImage();

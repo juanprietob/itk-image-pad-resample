@@ -42,13 +42,15 @@ img-pad-resample --img /path/to/input.nii --size 250,250,250 --out temp.nrrd
 Use [itk.js](https://insightsoftwareconsortium.github.io/itk-js/) to read an image. 
 
 ```js
-const readImageLocalFileSync = require('itk/readImageLocalFileSync');
-const writeImageLocalFileSync = require('itk/writeImageLocalFileSync');
+const MedImgReader = require('med-img-reader');
 const ImgPadResampleLib = require('itk-image-pad-resample');
 ```
 
 ```js
-const in_img = readImageLocalFileSync('/path/to/input{.png,.jpg,.nrrd,.nii.gz,.dcm}');
+const medimgreader = new MedImgReader();
+medimgreader.SetFilename('/path/to/input{.png,.jpg,.nrrd,.nii.gz,.dcm}');
+medimgreader.ReadImage();
+const in_img = medimgreader.GetOutput();
 
 const imgpad = new ImgPadResampleLib();
 imgpad.SetImage(in_img);
@@ -60,7 +62,11 @@ imgpad.SetInterpolationTypeToLinear(); //default is nearest
 imgpad.Update();
 var img_out = imgpad.GetOutput();
 
-writeImageLocalFileSync(true, img_out, outputFileName);
+const writer = new MedImgReader();
+writer.SetInput(img_out);
+writer.SetFilename('/path/to/ouput/{.png,.jpg,.nrrd,.nii.gz,.dcm}');
+writer.WriteImage();
+
 ```
 
 ## Example

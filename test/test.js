@@ -1,5 +1,4 @@
-const readImageLocalFileSync = require('itk/readImageLocalFileSync');
-const writeImageLocalFileSync = require('itk/writeImageLocalFileSync');
+const MedImgReader = require('med-img-reader');
 const ImgPadResampleLib = require('../dist/index');
 const Lab = require('@hapi/lab');
 const lab = exports.lab = Lab.script();
@@ -12,7 +11,11 @@ lab.experiment("Test image-pad-resample", function(){
 
         var inputFileName = path.join(__dirname, 't1.nrrd');
 		var outputFileName = path.join(__dirname, 't1_resampled.nrrd');
-		const in_img = readImageLocalFileSync(inputFileName);
+
+		const medimgreader = new MedImgReader();
+		medimgreader.SetFilename(inputFileName);
+		medimgreader.ReadImage();
+		const in_img = medimgreader.GetOutput();
 
 		var imgpad = new ImgPadResampleLib();
 		imgpad.SetImage(in_img);
@@ -21,7 +24,9 @@ lab.experiment("Test image-pad-resample", function(){
 		imgpad.Update();
 		var img_out = imgpad.GetOutput();
 
-		writeImageLocalFileSync(true, img_out, outputFileName)
+		medimgreader.SetInput(img_out);
+		medimgreader.SetFilename(outputFileName);
+		medimgreader.WriteImage();
         
         return true;
     });
@@ -30,7 +35,11 @@ lab.experiment("Test image-pad-resample", function(){
 
         var inputFileName = path.join(__dirname, 'brain.png');
 		var outputFileName = path.join(__dirname, 'brain_resampled.png');
-		const in_img = readImageLocalFileSync(inputFileName);
+		
+		const medimgreader = new MedImgReader();
+		medimgreader.SetFilename(inputFileName);
+		medimgreader.ReadImage();
+		const in_img = medimgreader.GetOutput();
 
 		var imgpad = new ImgPadResampleLib();
 		imgpad.SetImage(in_img);
@@ -40,7 +49,9 @@ lab.experiment("Test image-pad-resample", function(){
 		imgpad.Update();
 		var img_out = imgpad.GetOutput();
 
-		writeImageLocalFileSync(true, img_out, outputFileName)
+		medimgreader.SetInput(img_out);
+		medimgreader.SetFilename(outputFileName);
+		medimgreader.WriteImage();
         
         return true;
     });
@@ -49,7 +60,11 @@ lab.experiment("Test image-pad-resample", function(){
 
         var inputFileName = path.join(__dirname, 'brain.png');
 		var outputFileName = path.join(__dirname, 'brain_resampled.png');
-		const in_img = readImageLocalFileSync(inputFileName);
+		
+		const medimgreader = new MedImgReader();
+		medimgreader.SetFilename(inputFileName);
+		medimgreader.ReadImage();
+		const in_img = medimgreader.GetOutput();
 
 		var imgpad = new ImgPadResampleLib();
 		imgpad.SetImage(in_img);
@@ -61,7 +76,9 @@ lab.experiment("Test image-pad-resample", function(){
 		imgpad.Update();
 		var img_out = imgpad.GetOutput();
 
-		writeImageLocalFileSync(true, img_out, outputFileName)
+		medimgreader.SetInput(img_out);
+		medimgreader.SetFilename(outputFileName);
+		medimgreader.WriteImage();
         
         return true;
     });

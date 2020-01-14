@@ -22,6 +22,7 @@
   "license": "MIT",
   "dependencies": {
     "itk": "^10.2.1",
+    "med-img-reader": "^1.1.0",
     "minimist": "^1.2.0",
     "underscore": "^1.9.1"
   },
