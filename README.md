@@ -91,7 +91,7 @@ img-pad-resample --img brain.png --size 500,250 --iso_spacing --out out_brain_is
 Output RGBA image with equal spacing: 
 ![alt text](https://github.com/juanprietob/itk-image-pad-resample/raw/master/test/out_brain_iso.png "Image with equal spacing")
 
-## Convert image to a tensorflow Tensor (tfjs)[https://www.tensorflow.org/js]
+## Convert image to a tensorflow Tensor [tfjs](https://www.tensorflow.org/js)
 
 ---
 	const tf = require('@tensorflow/tfjs-node');//Or tfjs in browser or tfjs-node-gpu if in linux
