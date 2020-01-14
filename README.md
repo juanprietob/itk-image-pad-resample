@@ -39,7 +39,8 @@ img-pad-resample --img /path/to/input.nii --size 250,250,250 --out temp.nrrd
 
 ## Usage in your js logic
 
-Use [itk.js](https://insightsoftwareconsortium.github.io/itk-js/) to read an image. 
+Use [med-img-reader](https://www.npmjs.com/package/med-img-reader) to read any type of image with one or multiple
+components in a variety of formats. 
 
 ```js
 const MedImgReader = require('med-img-reader');
