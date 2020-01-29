@@ -61,56 +61,62 @@ const mkdirp = (dirname)=>{
 }
 
 const resampleImage = (inputFileName, outputFileName, argv)=>{
-    var output_size = argv["size"]? _.map(argv["size"].split(","), (n)=>{return Number(n);}) : [];
-    var output_spacing = argv["spacing"]? _.map(argv["spacing"].split(","), (n)=>{return Number(n);}) : [];
-    var output_pad = argv["pad"]? _.map(argv["pad"].split(","), (n)=>{return Number(n);}) : [];
-    var iso_spacing = argv["iso_spacing"];
-    var center_image = argv["center_image"];
-    var linear = argv["linear"];
+    try{
+        var output_size = argv["size"]? _.map(argv["size"].split(","), (n)=>{return Number(n);}) : [];
+        var output_spacing = argv["spacing"]? _.map(argv["spacing"].split(","), (n)=>{return Number(n);}) : [];
+        var output_pad = argv["pad"]? _.map(argv["pad"].split(","), (n)=>{return Number(n);}) : [];
+        var iso_spacing = argv["iso_spacing"];
+        var center_image = argv["center_image"];
+        var linear = argv["linear"];
 
-    console.log("Reading:", inputFileName);
-    const medimgreader = new MedImgReader();
-    medimgreader.SetFilename(inputFileName);
-    medimgreader.ReadImage();
-    var in_img = medimgreader.GetOutput();
+        console.log("Reading:", inputFileName);
+        const medimgreader = new MedImgReader();
+        medimgreader.SetFilename(inputFileName);
+        medimgreader.ReadImage();
+        var in_img = medimgreader.GetOutput();
 
-    var imgpad = new ImgPadResampleLib();
-    imgpad.SetImage(in_img);
-    imgpad.SetOutputSize(output_size);
+        var imgpad = new ImgPadResampleLib();
+        imgpad.SetImage(in_img);
+        imgpad.SetOutputSize(output_size);
 
-    if(output_spacing.length == 0){
-        imgpad.SetFitSpacingToOutputSizeOn();
-    }else{
-        imgpad.SetOutputSpacing(output_spacing);
+        if(output_spacing.length == 0){
+            imgpad.SetFitSpacingToOutputSizeOn();
+        }else{
+            imgpad.SetOutputSpacing(output_spacing);
+        }
+        if(output_pad.length > 0){
+            imgpad.SetOutputPad(output_pad);
+        }
+        if(iso_spacing){
+            imgpad.SetIsoSpacingOn();
+        }
+        if(center_image){
+            imgpad.SetCenterImageOn();
+        }
+        if(linear){
+            imgpad.SetInterpolationTypeToLinear();
+        }
+
+        imgpad.Update();
+        var img_out = imgpad.GetOutput();
+
+        console.log("Writing:", outputFileName);
+
+        const writer = new MedImgReader();
+        writer.SetFilename(outputFileName);
+        writer.SetInput(img_out)
+        writer.WriteImage();
+
+        medimgreader.delete();
+        imgpad.delete();
+        writer.delete();
+
+        return Promise.resolve();
+    }catch(e){
+        console.error(e);
+        return Promise.resolve();
     }
-    if(output_pad.length > 0){
-        imgpad.SetOutputPad(output_pad);
-    }
-    if(iso_spacing){
-        imgpad.SetIsoSpacingOn();
-    }
-    if(center_image){
-        imgpad.SetCenterImageOn();
-    }
-    if(linear){
-        imgpad.SetInterpolationTypeToLinear();
-    }
-
-    imgpad.Update();
-    var img_out = imgpad.GetOutput();
-
-    console.log("Writing:", outputFileName);
-
-    const writer = new MedImgReader();
-    writer.SetFilename(outputFileName);
-    writer.SetInput(img_out)
-    writer.WriteImage();
-
-    medimgreader.delete();
-    imgpad.delete();
-    writer.delete();
-
-    return Promise.resolve();
+    
 }
 
 const getImages = (argv)=>{
