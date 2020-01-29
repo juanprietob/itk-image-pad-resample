@@ -23,6 +23,7 @@
   "author": "juanprietob@gmail.com",
   "license": "MIT",
   "dependencies": {
+    "bluebird": "^3.7.2",
     "med-img-reader": "^1.2.1",
     "minimist": "^1.2.0",
     "underscore": "^1.9.1"
