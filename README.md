@@ -21,13 +21,14 @@ img-pad-resample --help
 ```
 Help: Resample an image to a specific size.
 Required:
---img <input path to image>
+--img <input path to image> or --dir <directory>
 --size <sizeX,sizeY,sizeZ>
 
 Optional:
 --out <output path> default: out.nrrd
---spacing <spacingX,spacingY,spacingZ> If not set, the output spacing is set to match the current image physical length.
---pad <padX,padY,padZ> pad output image at the top
+--out_ext <output extension> (when using --dir) default: .nrrd
+--spacing <spacingX,spacingY,spacingZ> Input image spacing is used. Otherwise, is set to fit the output size.
+--pad <padX,padY,padZ> pad output at the top
 --iso_spacing If this is set, the spacing of the output image will be isometric, i.e., the same for all dimensions which means the max spacing value is selected and set for all dimensions.
 --center_image If this is set, the output image is centered in the resampled space.
 --linear Linear interpolation, default is nearest neighbor.
@@ -35,6 +36,12 @@ Optional:
 
 ```bash
 img-pad-resample --img /path/to/input.nii --size 250,250,250 --out temp.nrrd 
+```
+
+To process a whole directory with images
+
+```bash
+img-pad-resample --dir /path/to/directory --size 250,250 --out /path/to/output/dir --out_ext .jpg
 ```
 
 ## Usage in your js logic
