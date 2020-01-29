@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 const MedImgReader = require('med-img-reader');
-const ImgPadResampleLib = require('../dist');
+const ImgPadResampleLib = require(__dirname + '/../dist');
 const argv = require('minimist')(process.argv.slice(2));
 const _ = require('underscore');
 
