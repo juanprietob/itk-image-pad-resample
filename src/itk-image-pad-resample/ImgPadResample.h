@@ -10,6 +10,7 @@
 #include <val.h>
 
 #include <itkImage.h>
+#include <itkImageIOBase.h>
 #include <itkVectorImage.h>
 #include <itkIdentityTransform.h>
 #include <itkInterpolateImageFunction.h>
@@ -17,13 +18,16 @@
 #include <itkLinearInterpolateImageFunction.h>
 #include <itkResampleImageFilter.h>
 #include <itkImageRegionIteratorWithIndex.h>
+#include <itkDataObject.h>
 
 
 using namespace std;
 using namespace emscripten;
 
-class ImgPadResample {
+struct ImgPadResample {
 public:
+
+  using DataObjectType = typename itk::DataObject;
 
   ImgPadResample();
   ~ImgPadResample();
@@ -39,11 +43,39 @@ public:
     return *(m_Image.get()); 
   }
 
-  template<typename ImageType>
-  void SetOutputBuffer(typename ImageType::Pointer image);
+  void SetImageDimension(const int dim){
+    m_Dimension = dim;
+  }
 
-  val GetOutputBuffer(){
-    return *(m_OutputBuffer.get()); 
+  int GetImageDimension(){
+    return m_Dimension;
+  }
+
+  void SetPixelType(const itk::ImageIOBase::IOPixelType pixelType){
+    m_PixelType = pixelType;
+  }
+
+  itk::ImageIOBase::IOPixelType GetPixelType(){
+    return m_PixelType;
+  }
+
+  void SetComponentType(const itk::ImageIOBase::IOComponentType componentType){
+    m_ComponentType = componentType;
+  }
+
+  itk::ImageIOBase::IOComponentType GetComponentType(){
+    return m_ComponentType;
+  }
+
+  val GetOutput(){
+    return *(m_OutputImage.get());
+  }
+
+  template <typename ImageType>
+  void SetOutputITKImage(typename ImageType::Pointer image, string componentType);
+
+  void SetOutput(val const & image){
+    m_OutputImage = make_shared<val>(image);
   }
 
   void SetOutputSize(val const & size){
@@ -91,26 +123,56 @@ public:
     m_InterpolationType = 1;
   }
 
+  void SetFitSpacingToOutputSizeOn(){
+    m_FitSpacingToOutputSize = true;
+  }
+
+  void SetFitSpacingToOutputSizeOff(){
+    m_FitSpacingToOutputSize = false;
+  }
+
+  void SetIsoSpacingOn(){
+    m_IsoSpacing = true;
+  }
+
+  void SetIsoSpacingOff(){
+    m_IsoSpacing = false;
+  }
+
+  void SetCenterImageOn(){
+    m_CenterImage = true;
+  }
+
+  void SetCenterImageOff(){
+    m_CenterImage = false;
+  }
+
   template<typename ImageType>
   typename ImageType::Pointer ResampleImage(typename ImageType::Pointer image, typename ImageType::PixelType zero);
 
-  void Update();
+  virtual void Update();
   template<typename PixelType>
-  void UpdateTyped();
+  void UpdateTyped(string componentType);
 
 
 private:
   shared_ptr<val> m_Image;
-  shared_ptr<val> m_OutputBuffer;
-  
+  shared_ptr<val> m_OutputImage;
+  itk::ImageIOBase::IOComponentType m_ComponentType;
+  itk::ImageIOBase::IOPixelType m_PixelType;
+  int m_Dimension;
+
   vector<int> m_OutputSize;
   vector<double> m_OutputSpacing;
   vector<int> m_OutputPad;
-  int m_InterpolationType; 
+  int m_InterpolationType;
+  bool m_FitSpacingToOutputSize;
+  bool m_IsoSpacing;
+  bool m_CenterImage;
 };
 
 // Binding code
-EMSCRIPTEN_BINDINGS(itk_image_j_s) {
+EMSCRIPTEN_BINDINGS(itk_img_pad_resample) {
 
   class_<ImgPadResample>("ImgPadResample")
     .constructor<>()
@@ -120,7 +182,13 @@ EMSCRIPTEN_BINDINGS(itk_image_j_s) {
     .function("SetOutputSize", &ImgPadResample::SetOutputSize)
     .function("SetOutputSpacing", &ImgPadResample::SetOutputSpacing)
     .function("SetOutputPad", &ImgPadResample::SetOutputPad)
-    .function("GetOutputBuffer", &ImgPadResample::GetOutputBuffer)
+    .function("GetOutput", &ImgPadResample::GetOutput)
+    .function("SetFitSpacingToOutputSizeOn", &ImgPadResample::SetFitSpacingToOutputSizeOn)
+    .function("SetFitSpacingToOutputSizeOff", &ImgPadResample::SetFitSpacingToOutputSizeOff)
+    .function("SetIsoSpacingOn", &ImgPadResample::SetIsoSpacingOn)
+    .function("SetIsoSpacingOff", &ImgPadResample::SetIsoSpacingOff)
+    .function("SetCenterImageOn", &ImgPadResample::SetCenterImageOn)
+    .function("SetCenterImageOff", &ImgPadResample::SetCenterImageOff)
     .function("Update", &ImgPadResample::Update)
     ;
     

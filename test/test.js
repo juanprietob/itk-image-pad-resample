@@ -34,7 +34,7 @@ lab.experiment("Test image-pad-resample", function(){
     lab.test('returns true when a 2D image 3 components is resampled.', function(){
 
         var inputFileName = path.join(__dirname, 'brain.png');
-		var outputFileName = path.join(__dirname, 'brain_resampled.png');
+		var outputFileName = path.join(__dirname, 'brain_resampled.nrrd');
 		
 		const medimgreader = new MedImgReader();
 		medimgreader.SetFilename(inputFileName);

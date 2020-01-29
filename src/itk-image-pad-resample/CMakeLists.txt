@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.3)
 include(ExternalProject)
 
-SET(FLAGS "--bind -Wno-warn-absolute-paths --memory-init-file 0 -s ALLOW_MEMORY_GROWTH=1" )
+SET(FLAGS "--bind -Wno-warn-absolute-paths --memory-init-file 0 -s ALLOW_MEMORY_GROWTH=1 -s MODULARIZE=1 -s EXPORT_NAME=\"'ImgPadResampleModule'\"" )
 
 SET (CMAKE_CXX_FLAGS ${FLAGS} CACHE STRING "compile flags" FORCE)
 SET (CMAKE_C_FLAGS ${FLAGS} CACHE STRING "compile flags" FORCE)
@@ -19,6 +19,7 @@ find_package(ITK COMPONENTS
   ITKCommon
   ITKImageFunction
   ITKImageGrid
+  ITKIOImageBase
   ${ITK_IO_MODULES_USED}
 )
 IF(${ITK_FOUND})

@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "lab -v test/test.js",
-    "build": "webpack"
+    "build": "rollup src/index.js --file dist/index.js --format umd --name itk-image-pad-resample"
   },
   "bin": {
     "img-pad-resample": "./bin/index.js"
@@ -23,14 +23,11 @@
   "author": "juanprietob@gmail.com",
   "license": "MIT",
   "dependencies": {
-    "itk": "^10.2.1",
     "med-img-reader": "^1.1.0",
     "minimist": "^1.2.0",
     "underscore": "^1.9.1"
   },
   "devDependencies": {
-    "@hapi/lab": "^21.0.0",
-    "webpack": "^4.41.5",
-    "webpack-cli": "^3.3.10"
+    "@hapi/lab": "^21.0.0"
   }
 }

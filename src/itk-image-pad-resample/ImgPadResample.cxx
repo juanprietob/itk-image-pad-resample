@@ -3,6 +3,12 @@
 
 ImgPadResample::ImgPadResample(){
   m_InterpolationType = 0;
+  m_OutputImage = 0;
+  m_FitSpacingToOutputSize = true;
+  m_IsoSpacing = true;
+  m_CenterImage = true;
+  m_OutputSpacing.clear();
+  m_OutputSize.clear();
 }
 
 ImgPadResample::~ImgPadResample(){
@@ -82,93 +88,127 @@ typename ImageType::Pointer ImgPadResample::GetITKImage(val const & image){
 void ImgPadResample::Update(){
 
   val image = this->GetImage();
+  val spacing = image["spacing"].as<val>();
+  val size = image["size"].as<val>();
+
+  if(m_OutputSpacing.size() == 0){
+    this->SetOutputSpacing(spacing);
+  }
+
+  if(m_OutputSize.size() == 0){
+    this->SetOutputSize(size);
+  }
+
+  if(m_FitSpacingToOutputSize){
+    val output_spacing = val::array();
+    for(unsigned i = 0; i < spacing["length"].as<unsigned>(); i++){
+      double sp = spacing[i].as<double>();
+      int si = size[i].as<int>();
+      double osp = sp*si/m_OutputSize[i];
+      output_spacing.call<void>("push", osp);
+    }
+    this->SetOutputSpacing(output_spacing);
+  }
+  if(m_IsoSpacing){
+    val output_spacing = val::array();
+    double maxsp = *(max_element(begin(m_OutputSpacing), end(m_OutputSpacing)));
+    for(unsigned i = 0; i < m_OutputSpacing.size(); i++){
+      output_spacing.call<void>("push", maxsp);
+    }
+    this->SetOutputSpacing(output_spacing);
+  }
+  if(m_CenterImage){
+    
+    vector<double> current_length;
+    vector<double> target_length;
+    for(unsigned i = 0; i < spacing["length"].as<unsigned>(); i++){
+      current_length.push_back(spacing[i].as<double>()*size[i].as<int>());
+    }
+    for(unsigned i = 0; i < m_OutputSpacing.size(); i++){
+      target_length.push_back(m_OutputSpacing[i]*m_OutputSize[i]);
+    }
+    
+    val output_pad = val::array();
+    for(unsigned i = 0; i < target_length.size(); i++){
+      double o_p = (target_length[i] - current_length[i])/2.0;
+      o_p = o_p > 0? round(o_p/m_OutputSpacing[i]): 0;
+      output_pad.call<void>("push", o_p);
+    }
+    this->SetOutputPad(output_pad);
+  }
 
   string componentType = image["imageType"]["componentType"].as<string>();
 
   if(componentType.compare("int8_t") == 0){
-    this->UpdateTyped<char>();
+    this->UpdateTyped<char>(componentType);
   }else if(componentType.compare("uint8_t") == 0){
-    this->UpdateTyped<unsigned char>();
+    this->UpdateTyped<unsigned char>(componentType);
   }else if(componentType.compare("int16_t") == 0){
-    this->UpdateTyped<short>();
+    this->UpdateTyped<short>(componentType);
   }else if(componentType.compare("uint16_t") == 0){
-    this->UpdateTyped<unsigned short>();
+    this->UpdateTyped<unsigned short>(componentType);
   }else if(componentType.compare("int32_t") == 0){
-    this->UpdateTyped<int>();
+    this->UpdateTyped<int>(componentType);
   }else if(componentType.compare("uint32_t") == 0){
-    this->UpdateTyped<unsigned int>();
+    this->UpdateTyped<unsigned int>(componentType);
   }else if(componentType.compare("int64_t") == 0){
-    this->UpdateTyped<long>();
+    this->UpdateTyped<long>(componentType);
   }else if(componentType.compare("uint64_t") == 0){
-    this->UpdateTyped<unsigned long>();
+    this->UpdateTyped<unsigned long>(componentType);
   }else if(componentType.compare("float") == 0){
-    this->UpdateTyped<float>();
+    this->UpdateTyped<float>(componentType);
   }else{
-    this->UpdateTyped<double>();
+    this->UpdateTyped<double>(componentType);
   }
 }
 
 template<typename PixelType>
-void ImgPadResample::UpdateTyped(){
+void ImgPadResample::UpdateTyped(string componentType){
 
   val image = this->GetImage();
 
-  if(image["imageType"]["dimension"].as<unsigned>() == 1 && image["imageType"]["components"].as<unsigned>() == 1){
-    typedef itk::Image< PixelType, 1 > ImageType;
-    
-    typename ImageType::Pointer input_image = this->GetITKImage<ImageType>(image);
-    typename ImageType::PixelType zero = 0;
-    typename ImageType::Pointer output_image = this->ResampleImage<ImageType>(input_image, zero);
-    this->SetOutputBuffer<ImageType>(output_image);
-
-  }else if(image["imageType"]["dimension"].as<unsigned>() == 1 && image["imageType"]["components"].as<unsigned>() > 1){
+  if(image["imageType"]["dimension"].as<unsigned>() == 1){
     typedef itk::VectorImage< PixelType, 1 > ImageType;
     
     typename ImageType::Pointer input_image = this->GetITKImage<ImageType>(image);
     typename ImageType::PixelType zero(input_image->GetNumberOfComponentsPerPixel());
     zero.Fill(0);
     typename ImageType::Pointer output_image = this->ResampleImage<ImageType>(input_image, zero);
-    this->SetOutputBuffer<ImageType>(output_image);
+    this->SetOutputITKImage<ImageType>(output_image, componentType);
 
-  }else if(image["imageType"]["dimension"].as<unsigned>() == 2 && image["imageType"]["components"].as<unsigned>() == 1){
-    typedef itk::Image< PixelType, 2 > ImageType;
-    
-    typename ImageType::Pointer input_image = this->GetITKImage<ImageType>(image);
-    typename ImageType::PixelType zero = 0;
-    typename ImageType::Pointer output_image = this->ResampleImage<ImageType>(input_image, zero);
-    this->SetOutputBuffer<ImageType>(output_image);
-  
-  }else if(image["imageType"]["dimension"].as<unsigned>() == 2 && image["imageType"]["components"].as<unsigned>() > 1){
+  }else if(image["imageType"]["dimension"].as<unsigned>() == 2){
     typedef itk::VectorImage< PixelType, 2 > ImageType;
 
     typename ImageType::Pointer input_image = this->GetITKImage<ImageType>(image);
     typename ImageType::PixelType zero(input_image->GetNumberOfComponentsPerPixel());
     zero.Fill(0);
     typename ImageType::Pointer output_image = this->ResampleImage<ImageType>(input_image, zero);
-    this->SetOutputBuffer<ImageType>(output_image);
+    this->SetOutputITKImage<ImageType>(output_image, componentType);
   
-  }else if(image["imageType"]["dimension"].as<unsigned>() == 3 && image["imageType"]["components"].as<unsigned>() == 1){
-    typedef itk::Image< PixelType, 3 > ImageType;
-    
-    typename ImageType::Pointer input_image = this->GetITKImage<ImageType>(image);
-    typename ImageType::PixelType zero = 0;
-    typename ImageType::Pointer output_image = this->ResampleImage<ImageType>(input_image, zero);
-    this->SetOutputBuffer<ImageType>(output_image);
-  
-  }else if(image["imageType"]["dimension"].as<unsigned>() == 3 && image["imageType"]["components"].as<unsigned>() > 1){
+  }else if(image["imageType"]["dimension"].as<unsigned>() == 3){
     typedef itk::VectorImage< PixelType, 3 > ImageType;
 
     typename ImageType::Pointer input_image = this->GetITKImage<ImageType>(image);
     typename ImageType::PixelType zero(input_image->GetNumberOfComponentsPerPixel());
     zero.Fill(0);
     typename ImageType::Pointer output_image = this->ResampleImage<ImageType>(input_image, zero);
-    this->SetOutputBuffer<ImageType>(output_image);
+    this->SetOutputITKImage<ImageType>(output_image, componentType);
+  
+  }else if(image["imageType"]["dimension"].as<unsigned>() == 4){
+    typedef itk::VectorImage< PixelType, 4 > ImageType;
+
+    typename ImageType::Pointer input_image = this->GetITKImage<ImageType>(image);
+    typename ImageType::PixelType zero(input_image->GetNumberOfComponentsPerPixel());
+    zero.Fill(0);
+    typename ImageType::Pointer output_image = this->ResampleImage<ImageType>(input_image, zero);
+    this->SetOutputITKImage<ImageType>(output_image, componentType);
   
   }
 }
 
 template<typename ImageType>
-typename ImageType::Pointer ImgPadResample::ResampleImage(typename ImageType::Pointer image, typename ImageType::PixelType zero){
+typename ImageType::Pointer 
+ImgPadResample::ResampleImage(typename ImageType::Pointer image, typename ImageType::PixelType zero){
 
   typename itk::InterpolateImageFunction<ImageType, double>::Pointer interpolator;
 
@@ -221,7 +261,7 @@ typename ImageType::Pointer ImgPadResample::ResampleImage(typename ImageType::Po
   output_image->SetDirection(image->GetDirection());
   output_image->Allocate();
   output_image->FillBuffer(zero);
-
+  
   itk::ImageRegionIteratorWithIndex<ImageType> outit(output_image, output_image->GetLargestPossibleRegion());
   outit.GoToBegin();
 
@@ -302,7 +342,70 @@ typename ImageType::Pointer ImgPadResample::ResampleImage(typename ImageType::Po
   // return resample_filter->GetOutput();
 }
 
-template<typename ImageType>
-void ImgPadResample::SetOutputBuffer(typename ImageType::Pointer image){
-  m_OutputBuffer = make_shared<val>(val(typed_memory_view(image->GetPixelContainer()->Size(),image->GetBufferPointer())));
+template <typename ImageType>
+void ImgPadResample::SetOutputITKImage(typename ImageType::Pointer itk_image, string componentType)
+{
+  // image = {
+  //   imageType: {
+  //     dimension: 2,
+  //     componentType: 'uint16_t',
+  //     pixelType: 1,
+  //     components: 1
+  //   },
+  //   name: 'Image',
+  //   origin: [ 0, 0 ],
+  //   spacing: [ 0.148489, 0.148489 ],
+  //   direction: { rows: 2, columns: 2, data: [ 1, 0, 0, 1 ] },
+  //   size: [ 1136, 852 ],
+  //   data: Uint16Array []
+  // }
+
+  val origin = val::array();
+  val spacing = val::array();
+  val size = val::array();
+  val direction = val::array();
+
+  typename ImageType::SpacingType i_spacing = itk_image->GetSpacing();
+  typename ImageType::PointType i_origin = itk_image->GetOrigin();
+  typename ImageType::SizeType i_size = itk_image->GetLargestPossibleRegion().GetSize();
+  typename ImageType::DirectionType::InternalMatrixType i_direction = itk_image->GetDirection().GetVnlMatrix();
+
+  int i_dimension = itk_image->GetImageDimension();
+
+  for(unsigned i = 0; i < i_dimension; i++){
+    origin.call<void>("push", i_origin[i]);
+    spacing.call<void>("push", i_spacing[i]);
+    size.call<void>("push", i_size[i]);
+  }
+
+  for(unsigned i = 0; i < i_direction.size(); i++){
+    direction.call<void>("push", i_direction.data_block()[i]);
+  }
+
+  val imageType = val::object();
+  imageType.set("dimension", i_dimension);
+  imageType.set("components", (int)itk_image->GetNumberOfComponentsPerPixel());
+  imageType.set("componentType", val(componentType));
+  imageType.set("pixelType", (int)this->GetPixelType());
+
+  val matrixType = val::object();
+  matrixType.set("rows", i_direction.rows());
+  matrixType.set("columns", i_direction.columns());
+  matrixType.set("data", direction);
+
+  val image = val::object();
+  image.set("imageType", imageType);
+  image.set("name", val("Image"));
+  image.set("origin", origin);
+  image.set("spacing", spacing);
+  image.set("direction", matrixType);
+  image.set("size", size);
+  image.set("data", val(typed_memory_view((int)itk_image->GetPixelContainer()->Size(),itk_image->GetBufferPointer())));
+
+  this->SetOutput(image);
 }
+
+// template<typename ImageType>
+// void ImgPadResample::SetOutputBuffer(typename ImageType::Pointer image){
+  // m_OutputBuffer = make_shared<val>(val(typed_memory_view(image->GetPixelContainer()->Size(),image->GetBufferPointer())));
+// }
