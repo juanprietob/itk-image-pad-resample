@@ -5,7 +5,7 @@ ImgPadResample::ImgPadResample(){
   m_InterpolationType = 0;
   m_OutputImage = 0;
   m_FitSpacingToOutputSize = true;
-  m_IsoSpacing = true;
+  m_IsoSpacing = false;
   m_CenterImage = true;
   m_OutputSpacing.clear();
   m_OutputSize.clear();
