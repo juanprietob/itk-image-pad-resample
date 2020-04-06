@@ -72,7 +72,7 @@ const resampleImage = (inputFileName, outputFileName, argv)=>{
 
             console.log("Reading:", inputFileName);
             const medimgreader = new MedImgReader();
-            medimgreader.SetFilename(inputFileName);
+            medimgreader.SetFilename(fs.realpathSync(inputFileName));
             medimgreader.ReadImage();
             var in_img = medimgreader.GetOutput();
 
